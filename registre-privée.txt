@@ -1,0 +1,17 @@
+#Creation du réseau
+docker network create netshare
+
+#Création du registre privé avec l'option de suppression des img et l'ajout du réseau crée
+#Le backend
+docker run -d -p 5000:5000 -e REGISTRY_STORAGE_DELETE_ENABLED=true --name registry --net netshare registry:2
+
+#Creation du front end avec le docker registry UI
+docker run -d -p 8090:80 --net netshare -e REGISTRY_URL=http://registry:5000 -e DELETE_IMAGE=true -e REGISTRY_TITLE=easytrainig --name frontend-easy joxit/docker-registry-ui:1.5-static
+
+#Push de l'image local
+#Taguer l'image d'abord ex nginx
+docker tag <ID_IMAGE> localhost:5000/nginx:local
+
+#Ensuite on affiche son image taguée avant de le pousser
+docker images
+docker push localhost:5000/nginx:local
